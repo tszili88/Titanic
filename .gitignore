@@ -1,0 +1,26 @@
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Virtual Environments (if you use them locally)
+venv/
+.venv/
+env/
+
+# Large Data files (Keep your raw CSVs out of GitHub if they are huge)
+# Note: Since the Titanic CSVs are tiny, you can comment this out with a '#' if you WANT them on GitHub.
+*.csv
+*.xlsx
+
+# Model checkpoints and weights (e.g., saved Random Forest models)
+*.pkl
+*.pickle
+*.joblib
+*.h5
+
+# Operating system files
+.DS_Store
+Thumbs.db
