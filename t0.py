@@ -5,6 +5,8 @@ from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
 
 # Import Matplotlib an Seaborn for visualization
 import matplotlib.pyplot as plt
@@ -26,15 +28,18 @@ print(f'Train head: {train_df.head(20)}')
 df = train_df.drop(columns=['PassengerId', 'Name', 'Ticket'])
 #df.dropna(subset=['Age'], inplace=True)
 
-# Survival rates
+# Transform data
+df['Embarked'] = df['Embarked'].fillna('X')
 df['Cabin'] = df['Cabin'].fillna('XX')
 df['Cabin'] = df['Cabin'].str[:2]
-
-# Random forest classifier
 df = pd.concat([df, pd.get_dummies(df['Cabin'], prefix='Cabin', dtype=int)], axis=1)
 df = pd.concat([df, pd.get_dummies(df['Embarked'], prefix='Embarked', dtype=int)], axis=1)
 df = pd.concat([df, pd.get_dummies(df['Sex'], prefix='Sex', dtype=int)], axis=1)
 
+print(df.shape)
+print(f'df head: {df.head(20)}')
+
+# Random forest classifier
 X = df.drop(columns=['Sex', 'Embarked', 'Cabin', 'Survived'])
 y = df['Survived']
 X_train, X_test, y_train, y_test = train_test_split(
@@ -42,9 +47,26 @@ X_train, X_test, y_train, y_test = train_test_split(
 model = RandomForestClassifier(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
-print(f"Accuracy: {accuracy_score(y_test, y_pred):.4f}\n")
-print("Classification Report:")
+print(f"Random Forest - Accuracy: {accuracy_score(y_test, y_pred):.4f}\n")
+print("Random Forest - Classification Report:")
 print(classification_report(y_test, y_pred))
+
+# Logistic regression
+X['Age'] = X['Age'].fillna(99)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+model = LogisticRegression(solver='liblinear', random_state=42)
+model.fit(X_train_scaled, y_train)
+y_pred = model.predict(X_test_scaled)
+y_probs = model.predict_proba(X_test_scaled)[:, 1]  # Probabilities of class 1
+print(f"LogisticRegression - Accuracy Score: {accuracy_score(y_test, y_pred):.2f}")
+print("\nLogisticRegression - Classification Report:\n", classification_report(y_test, y_pred))
+
+
 
 # Plots
 if plot:
@@ -131,8 +153,6 @@ if plot:
 	sns.heatmap(corr_mtx, cmap='coolwarm')
 	plt.show(block=True)
 
-print(df.shape)
-print(f'df head: {df.head(20)}')
 
 
 
