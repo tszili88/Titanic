@@ -24,6 +24,8 @@ def data_prep(df_):
 	df = pd.concat([df, pd.get_dummies(df['Embarked'], prefix='Embarked', dtype=int)], axis=1)
 	df = pd.concat([df, pd.get_dummies(df['Sex'], prefix='Sex', dtype=int)], axis=1)
 	
+	df['Is_alone'] = (df['SibSp'] + df['Parch'] < 1).astype(int)
+	
 	X = df.drop(columns=['Sex', 'Embarked', 'Cabin'])
 	#X.dropna(subset=['Age'], inplace=True)
 	X['Age'] = X['Age'].fillna(99)
@@ -76,6 +78,7 @@ y_pred = model.predict(X_test_scaled)
 y_probs = model.predict_proba(X_test_scaled)[:, 1]  # Probabilities of class 1
 print(f"LogisticRegression - Accuracy Score: {accuracy_score(y_test, y_pred):.2f}")
 print("\nLogisticRegression - Classification Report:\n", classification_report(y_test, y_pred))
+print(confusion_matrix(y_test, y_pred))
 
 
 

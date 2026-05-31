@@ -69,6 +69,8 @@ y_pred = model.predict(X_test)
 print(f"Random Forest - Accuracy: {accuracy_score(y_test, y_pred):.4f}\n")
 print("Random Forest - Classification Report:")
 print(classification_report(y_test, y_pred))
+print(confusion_matrix(y_test, y_pred))
+
 
 
 # Plots
