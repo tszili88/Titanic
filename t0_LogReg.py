@@ -1,9 +1,6 @@
 import numpy as np # linear algebra
 import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
 import os
-from sklearn.datasets import load_iris
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
@@ -52,6 +49,7 @@ print(f'Train dataset rows: {train_df.shape[0]}')
 print(f'Test dataset rows: {test_df.shape[0]}')
 print(f'Train head: {train_df.head(20)}')
 
+# Clean: X_train, X_test, y_test
 X_train, y_train = data_prep(train_df)
 X_test, _ = data_prep(test_df)
 y_test = pd.read_csv('./surv.csv')
@@ -60,17 +58,18 @@ y_test = y_test[~X_train.isna().any(axis=1)]
 y_test = y_test[~X_test.isna().any(axis=1)]
 X_train = X_train.dropna()
 X_test = X_test.dropna()
-
 combined_cols = X_train.columns.union(X_test.columns, sort=False)
 X_train = X_train.reindex(columns=combined_cols, fill_value=0)
 X_test = X_test.reindex(columns=combined_cols, fill_value=0)
 
+# Scaler
 scaler = StandardScaler()
 print(f'X_test head: {X_test.head(20)}')
 print(f'X_test #nan: {X_test.isna().sum()[X_test.isna().any()]}')
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
+# Fit model
 model = LogisticRegression(solver='liblinear', random_state=42)
 model.fit(X_train_scaled, y_train)
 y_pred = model.predict(X_test_scaled)
