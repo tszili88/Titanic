@@ -54,12 +54,12 @@ print(f'Train head: {train_df.head(20)}')
 # Clean: X_train, X_test, y_test
 X_train, y_train = data_prep(train_df)
 X_test, _ = data_prep(test_df)
-y_test = pd.read_csv('./surv.csv')
-y_test = y_test.drop(columns='PassengerId')
-y_test = y_test[~X_train.isna().any(axis=1)]
-y_test = y_test[~X_test.isna().any(axis=1)]
-X_train = X_train.dropna()
-X_test = X_test.dropna()
+#y_test = y_test.drop(columns='PassengerId')
+#y_test = y_test[~X_train.isna().any(axis=1)]
+#y_test = y_test[~X_test.isna().any(axis=1)]
+#X_train = X_train.dropna()
+#X_test = X_test.dropna()
+X_test['Fare'] = X_test['Fare'].fillna(X_test['Fare'].median())
 combined_cols = X_train.columns.union(X_test.columns, sort=False)
 X_train = X_train.reindex(columns=combined_cols, fill_value=0)
 X_test = X_test.reindex(columns=combined_cols, fill_value=0)
@@ -76,11 +76,13 @@ model = LogisticRegression(solver='liblinear', random_state=42)
 model.fit(X_train_scaled, y_train)
 y_pred = model.predict(X_test_scaled)
 y_probs = model.predict_proba(X_test_scaled)[:, 1]  # Probabilities of class 1
-print(f"LogisticRegression - Accuracy Score: {accuracy_score(y_test, y_pred):.2f}")
-print("\nLogisticRegression - Classification Report:\n", classification_report(y_test, y_pred))
-print(confusion_matrix(y_test, y_pred))
 
+survived_df = pd.read_csv('gender_submission.csv')
+survived_df['Survived'] = y_pred
+survived_df.to_csv('gender_submission.csv', index=False)
 
+diff_ = survived_df.index[y_pred != survived_df['Survived']]
+print('Res: ', y_pred[23], survived_df['Survived'].iloc[23])
 
 # Plots
 if plot:
